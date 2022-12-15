@@ -6,10 +6,11 @@
 /// - ComputeAverageAperture(beamCPsList): Compute the MU weighted average number of apertures
 /// - ComputeApertureJawOpenRatio(beamCPsList): Compute the MU weighted aperture area over jaw opening area ratio 
 /// - ComputePerimeterAreaRatio(beamCPsList): Compute the MU weighted aperture perimeter over aperture area ratio
-/// - ComputeApertureMUWeightedPerimeterAreaRatio(beamCPsList): Compute the apperture MU weighted aperture perimeter over aperture area ratio
-/// - ComputeOriginalEdgeLengthAreaRatio(beamCPsList): Compute the original MU weighted control point weighted aperture open leaf edge length over aperture area ratio
-/// - ComputeEdgeLengthAreaRatio(beamCPsList): Compute the MU weighted aperture open leaf edge length over aperture area ratio
-/// - ComputeApertureMUWeightedEdgeLengthAreaRatio(beamCPsList): Compute the apperture MU weighted aperture open leaf edge length over aperture area ratio
+/// - ComputeAveragePerimeterAreaRatio(beamCPsList): Compute the average aperture MU weighted perimeter over aperture area ratio
+/// - ComputeOriginalEdgeLengthAreaRatio(beamCPsList): Compute the original overall MU weighted control point weighted open leaf edge length over aperture area ratio
+/// - ComputeEdgeLengthAreaRatio(beamCPsList): Compute the overall aperture MU weighted open leaf edge length over aperture area ratio
+/// - ComputeEquivSqLength(beamCPsList): Compute the length of equivalent square with the same leaf edge length over area ratio
+/// - ComputeAverageEdgeLengthAreaRatio(beamCPsList): Compute the average aperture MU weighted open leaf edge length over aperture area ratio
 /// - ComputeApertureHistogram(beamCPsList, binSize): Generate the histogram of the aperture area, bin size = binSz mm^2
 /// - ComputeAverageApertureArea(beamCPsList): Compute the average aperture area
 /// - ComputeApertureSkewness(beamCPsList): Compute the skewness of the aperture area
@@ -17,9 +18,17 @@
 /// - ComputeAverageLeafSpeed(bmCPsLs): Compute the MU weighted average leaf speed
 /// - ComputeAverageGantryAcceleration(beamCPsList): Compute the average change in gantry speed
 /// - AreBeamsValid(beamCPsList): Check if all beams have MUs, note that beamCPsList would have MLC control points
-/// 
+///
+///--version 1.0.0.1
+/// Changed the previous definition of normalized Edge Area Ratio to average Edge Area Ratio
+/// Added another definition for normalized Edge Area Ratio
+/// Same change applied to Perimeter Area Ratio
+/// Applied 2x inverse of normalized edge area ratio to get equivalent square length as complexity metric
+///  
+/// Becket Hui 2022/12
+///
 ///--version 1.0.0.0
-///Becket Hui 2022/10
+/// Becket Hui 2022/10
 ///
 //////////////////////////////////////////////////////////////////////
 using System;
@@ -93,23 +102,26 @@ namespace complexityIMRT
         public double ComputePerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
         // Compute the overall MU weighted aperture perimeter over aperture area ratio //
         {
-            double totPrmtrAreaR = 0;
+            double totMUPrmtr = 0;
+            double totMUArea = 0;
             if (AreBeamsValid(bmCPsLs))
             {
-                double totMU = bmCPsLs.Sum(bm => bm.beamMU);
                 foreach (BeamControlPoints bmCPs in bmCPsLs)
                 {
                     foreach (BeamControlPointAperture ctrPt in bmCPs.bmCPApertLs)
                     {
-                        double prmtrAreaR = ctrPt.apertures.Sum(ap => ap.perimeter / ap.area);  // return 0 if apertures empty
-                        totPrmtrAreaR += ctrPt.avgMU * prmtrAreaR / totMU;
+                        if (ctrPt.apertures.Count > 0)
+                        {
+                            totMUPrmtr += ctrPt.avgMU * ctrPt.apertures.Sum(ap => ap.perimeter);
+                            totMUArea += ctrPt.avgMU * ctrPt.apertures.Sum(ap => ap.area);
+                        }
                     }
                 }
             }
-            return totPrmtrAreaR;
+            return totMUPrmtr/totMUArea;
         }
-        public double ComputeApertureMUWeightedPerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
-        // Compute the overall apperture MU weighted aperture perimeter over aperture area ratio //
+        public double ComputeAveragePerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
+        // Compute the average aperture MU weighted perimeter over aperture area ratio //
         {
             double totPrmtrAreaR = 0;
             if (AreBeamsValid(bmCPsLs))
@@ -127,7 +139,7 @@ namespace complexityIMRT
             return totPrmtrAreaR;
         }
         public double ComputeOriginalEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
-        // Compute the original overall MU weighted control point weighted aperture open leaf edge length over aperture area ratio //
+        // Compute the original overall MU weighted control point weighted open leaf edge length over aperture area ratio //
         {
             double totEdgeLenAreaR = 0;
             if (AreBeamsValid(bmCPsLs))
@@ -148,9 +160,10 @@ namespace complexityIMRT
             return totEdgeLenAreaR;
         }
         public double ComputeEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
-        // Compute the overall MU weighted aperture open leaf edge length over aperture area ratio //
+        // Compute the overall aperture MU weighted open leaf edge length over aperture area ratio //
         {
-            double totEdgeLenAreaR = 0;
+            double totMUEdgeLen = 0;
+            double totMUArea = 0;
             if (AreBeamsValid(bmCPsLs))
             {
                 double totMU = bmCPsLs.Sum(bm => bm.beamMU);
@@ -158,15 +171,40 @@ namespace complexityIMRT
                 {
                     foreach (BeamControlPointAperture ctrPt in bmCPs.bmCPApertLs)
                     {
-                        double edgeLenAreaR = ctrPt.apertures.Sum(ap => ap.edgeLen / ap.area);  // return 0 if apertures empty
-                        totEdgeLenAreaR += ctrPt.avgMU * edgeLenAreaR / totMU;
+                        if (ctrPt.apertures.Count > 0)
+                        {
+                            totMUEdgeLen += ctrPt.avgMU * ctrPt.apertures.Sum(ap => ap.edgeLen);
+                            totMUArea += ctrPt.avgMU * ctrPt.apertures.Sum(ap => ap.area);
+                        }
                     }
                 }
             }
-            return totEdgeLenAreaR;
+            return totMUEdgeLen/totMUArea;
         }
-        public double ComputeApertureMUWeightedEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
-        // Compute the overall apperture MU weighted aperture open leaf edge length over aperture area ratio //
+        public double ComputeEquivSqLength(List<BeamControlPoints> bmCPsLs)
+        // Compute the length of equivalent square with the same leaf edge length over area ratio //
+        {
+            double totMUEdgeLen = 0;
+            double totMUArea = 0;
+            if (AreBeamsValid(bmCPsLs))
+            {
+                double totMU = bmCPsLs.Sum(bm => bm.beamMU);
+                foreach (BeamControlPoints bmCPs in bmCPsLs)
+                {
+                    foreach (BeamControlPointAperture ctrPt in bmCPs.bmCPApertLs)
+                    {
+                        if (ctrPt.apertures.Count > 0)
+                        {
+                            totMUEdgeLen += ctrPt.avgMU * ctrPt.apertures.Sum(ap => ap.edgeLen);
+                            totMUArea += ctrPt.avgMU * ctrPt.apertures.Sum(ap => ap.area);
+                        }
+                    }
+                }
+            }
+            return 2 * totMUArea/totMUEdgeLen;
+        }
+        public double ComputeAverageEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
+        // Compute the average aperture MU weighted open leaf edge length over aperture area ratio //
         {
             double totEdgeLenAreaR = 0;
             if (AreBeamsValid(bmCPsLs))

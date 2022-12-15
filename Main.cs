@@ -25,11 +25,11 @@ namespace VMS.TPS
             StreamWriter sw = new StreamWriter(Path.Combine(fileDir, context.Patient.Id + "_" + pln.Id + ".csv"));
             sw.WriteLine(context.Patient.Id + ", " + pln.Id);
             sw.WriteLine("Beam Id, Machine, Beam Energy, Beam MU, Beam Time(s), Aperture/Jaw Area, Perimeter/Area (mm-1), OG Edge/Area (mm-1)," +
-                " Edge/Area (mm-1), Closed Leaf Gap (mm), Average Leaf Speed (mm/s), Average Gantry Accel (deg/s/CP)");
+                " Eq Sq Length (mm), Closed Leaf Gap (mm), Average Leaf Speed (mm/s), Average Gantry Accel (deg/s/CP)");
             string prntTxt = "";
             List<BeamControlPoints> bmCPsLs = new List<BeamControlPoints>();
             ComplexityMetrics complexity = new ComplexityMetrics();
-            double muDsR, apertOpgR, normPrmtrAreaR, orgEdgeLenAreaR, normEdgeLenAreaR, leafGaps, leafSpeed, gantryAccel;
+            double muDsR, apertOpgR, normPrmtrAreaR, orgEdgeLenAreaR, eqSqLen, leafGaps, leafSpeed, gantryAccel;
             foreach (Beam bm in pln.Beams)
             {
                 if (bm.MLC != null)
@@ -58,15 +58,15 @@ namespace VMS.TPS
                         sw.Write(bmCPs.id + ", " + bm.TreatmentUnit.Id + ", " + bm.EnergyModeDisplayName + ", " + bmCPs.beamMU + ", " + bmCPs.beamTm + ", ");
                         List<BeamControlPoints> currBmCPs = new List<BeamControlPoints>() { bmCPs };
                         apertOpgR = complexity.ComputeApertureJawOpenRatio(currBmCPs);
-                        normPrmtrAreaR = complexity.ComputeApertureMUWeightedPerimeterAreaRatio(currBmCPs);
+                        normPrmtrAreaR = complexity.ComputePerimeterAreaRatio(currBmCPs);
                         orgEdgeLenAreaR = complexity.ComputeOriginalEdgeLengthAreaRatio(currBmCPs);
-                        normEdgeLenAreaR = complexity.ComputeApertureMUWeightedEdgeLengthAreaRatio(currBmCPs);
+                        eqSqLen = complexity.ComputeEquivSqLength(currBmCPs);
                         leafGaps = complexity.ComputeLeafGaps(currBmCPs);
                         leafSpeed = complexity.ComputeAverageLeafSpeed(currBmCPs);
                         gantryAccel = complexity.ComputeAverageGantryAcceleration(currBmCPs);
                         prntTxt += "- The aperture area/jaw opening ratio = " + apertOpgR.ToString("0.##") +
-                            ", \n  and the complexity metric = " + normEdgeLenAreaR.ToString("0.##") + " mm-1.\n\n";
-                        sw.WriteLine(apertOpgR + ", " + normPrmtrAreaR + ", " + orgEdgeLenAreaR + ", " + normEdgeLenAreaR +
+                            ", \n  and the equivalent square length complexity = " + eqSqLen.ToString("0.##") + " mm.\n\n";
+                        sw.WriteLine(apertOpgR + ", " + normPrmtrAreaR + ", " + orgEdgeLenAreaR + ", " + eqSqLen +
                             ", " + leafGaps + ", " + leafSpeed + ", " + gantryAccel);
                         bmCPsLs.Add(bmCPs);
                     }
@@ -75,11 +75,12 @@ namespace VMS.TPS
             //double muDsR = complexity.ComputeMUDoseRatio(bmCPsLs, pln.DosePerFraction.Dose);
             //double apertCtrPtR = complexity.ComputeAverageAperture(bmCPsLs);
             //double apertOpgR = complexity.ComputeApertureJawOpenRatio(bmCPsLs);
-            //double prmtrAreaR = complexity.ComputePerimeterAreaRatio(bmCPsLs);
-            //double normPrmtrAreaR = complexity.ComputeApertureMUWeightedPerimeterAreaRatio(bmCPsLs);
-            //double edgeLenAreaR = complexity.ComputeEdgeLengthAreaRatio(bmCPsLs);
+            //double normPrmtrAreaR = complexity.ComputePerimeterAreaRatio(bmCPsLs);
+            //double avgPrmtrAreaR = complexity.ComputeAveragePerimeterAreaRatio(bmCPsLs);
+            //double normEdgeLenAreaR = complexity.ComputeEdgeLengthAreaRatio(bmCPsLs);
+            //double eqSqLen = complexity.ComputeEquivSqLength(bmCPsLs);
             //double orgEdgeLenAreaR = complexity.ComputeOriginalEdgeLengthAreaRatio(bmCPsLs);
-            //double normEdgeLenAreaR = complexity.ComputeApertureMUWeightedEdgeLengthAreaRatio(bmCPsLs);
+            //double avgEdgeLenAreaR = complexity.ComputeAverageEdgeLengthAreaRatio(bmCPsLs);
             //double leafGaps = complexity.ComputeLeafGaps(bmCPsLs);
             //double gantryAccel = complexity.ComputeAverageGantryAcceleration(bmCPsLs);
             //Dictionary<int, double> apertHist = complexity.ComputeApertureHistogram(bmCPsLs, 200);
@@ -103,18 +104,18 @@ namespace VMS.TPS
             //    ", 1700 - " + apertHist[1800].ToString() + ", 1900 - " + apertHist[2000].ToString() + ", 2100 - " + apertHist[2200].ToString());
             muDsR = complexity.ComputeMUDoseRatio(bmCPsLs, pln.DosePerFraction.Dose);
             apertOpgR = complexity.ComputeApertureJawOpenRatio(bmCPsLs);
-            normPrmtrAreaR = complexity.ComputeApertureMUWeightedPerimeterAreaRatio(bmCPsLs);
+            normPrmtrAreaR = complexity.ComputePerimeterAreaRatio(bmCPsLs);
             orgEdgeLenAreaR = complexity.ComputeOriginalEdgeLengthAreaRatio(bmCPsLs);
-            normEdgeLenAreaR = complexity.ComputeApertureMUWeightedEdgeLengthAreaRatio(bmCPsLs);
+            eqSqLen = complexity.ComputeEquivSqLength(bmCPsLs);
             leafGaps = complexity.ComputeLeafGaps(bmCPsLs);
             leafSpeed = complexity.ComputeAverageLeafSpeed(bmCPsLs);
             gantryAccel = complexity.ComputeAverageGantryAcceleration(bmCPsLs);
             prntTxt += "The total beam time = " + (bmCPsLs.Sum(bm => bm.beamTm)/60).ToString("0.#") + " min, overall MU/dose ratio = " + muDsR.ToString("0.##") + 
                 ",\nwith aperture area/jaw opening ratio = " + apertOpgR.ToString("0.##") + 
-                ",\nand complexity metric = " + normEdgeLenAreaR.ToString("0.##") + " mm-1.";
+                ",\nand equivalent sqaure length complexity = " + eqSqLen.ToString("0.##") + " mm.";
             MessageBox.Show(prntTxt);
             sw.WriteLine("Total:, , , " + bmCPsLs.Sum(bmcp => bmcp.beamMU) + ", " + bmCPsLs.Sum(bmcp => bmcp.beamTm) + ", " +
-                apertOpgR + ", " + normPrmtrAreaR + ", " + orgEdgeLenAreaR + ", " + normEdgeLenAreaR + ", " +
+                apertOpgR + ", " + normPrmtrAreaR + ", " + orgEdgeLenAreaR + ", " + eqSqLen + ", " +
                 leafGaps + ", " + leafSpeed + ", " + gantryAccel);
             sw.Close();
         }
