@@ -1,21 +1,21 @@
-﻿//////////////////////////////////////////////////////////////////////
-///Beam Control Points class & functions defined for complexity IMRT script//
-///Main Class:
-/// BeamControlPoints:
+﻿////////////////////////////////////////////////////////////////////////////////////////////
+///Beam Control Points class & functions defined for complexity IMRT script
+///Beam Control Point Main Class:
 ///     idx, mlcModel, leafWidthLs, beamMU, beamTm, bmCPLs
 ///     BeamControlPoints(beam) - Extract information & compute aperture parameters from the beam
-///     getMaxGantrySpeed(machineId) - get max gantry speed
+///     getMaxGantrySpeed(machineId) - get max gantry speed ** Must customize for Machines in clinic **
 ///     getLeafWidths(mlcModel) - get mlc widths
 ///     ModCustom(a, n) - customized a % n
-///Other Classes:
-///     BeamControlPoint: class of single control point
+///Sub Classes:
+///     BeamControlPointDynamic: class of mechanical properties of single control point
+///     BeamControlPointAperture: class of aperture properties of single control point
 ///     ControlPointAperture: class of single aperture
 ///     LeafSpecs: class of leaf specifications
 /// 
 ///--version 1.0.0.0
 ///Becket Hui 2022/10
 ///
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -207,13 +207,13 @@ namespace complexityIMRT
         {
             switch (machineId)
             {
-                case "Everest":
+                case "Machine 1":
                     return 4.8;
-                case "K2":
+                case "Machine 2":
                     return 4.8;
-                case "Denali":
+                case "Machine 3":
                     return 6.0;
-                case "Taos":
+                case "Machine 4":
                     return 6.0;
                 default:
                     return 0.0;
@@ -254,7 +254,7 @@ namespace complexityIMRT
         }
     }
     public class BeamControlPointDynamic
-    // Class for beam gantry speed control point //
+    // Class for beam dynamics of control point //
     {
         public int idx;
         public double cpGantryV; // gantry speed
@@ -271,7 +271,7 @@ namespace complexityIMRT
         }
     }
     public class BeamControlPointAperture
-    // Class for beam control point //
+    // Class for beam aperture properties of control point //
     {
         public int idx;
         public double jawX1, jawX2, jawY1, jawY2, jawPerimeter, jawArea;
