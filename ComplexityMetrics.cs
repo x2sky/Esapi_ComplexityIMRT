@@ -19,6 +19,12 @@
 /// - ComputeAverageGantryAcceleration(beamCPsList): Compute MU weighted overall average change in gantry speed
 /// - AreBeamsValid(beamCPsList): Check if all beams have MUs, note that beamCPsList would have MLC control points
 ///
+///--version 1.0.0.2
+/// Change description
+/// Change methods to static
+/// 
+/// Becket Hui 2023/09
+/// 
 ///--version 1.0.0.1
 /// Changed the previous definition of normalized Edge Area Ratio to average Edge Area Ratio
 /// Added another definition for normalized Edge Area Ratio
@@ -44,7 +50,7 @@ namespace complexityIMRT
 {
     internal class ComplexityMetrics
     {
-        public double ComputeMUDoseRatio(List<BeamControlPoints> bmCPsLs, double presDs)
+        public static double ComputeMUDoseRatio(List<BeamControlPoints> bmCPsLs, double presDs)
         // Compute traditional MU over dose modulation factor //
         {
             double totMU = 0;
@@ -54,7 +60,7 @@ namespace complexityIMRT
             }
             return totMU / presDs;
         }
-        public double ComputeTotalApertureMU(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeTotalApertureMU(List<BeamControlPoints> bmCPsLs)
         // Compute total MU contributed by each aperture //
         {
             double totMU = 0;
@@ -67,7 +73,7 @@ namespace complexityIMRT
             }
             return totMU;
         }
-        public double ComputeAverageAperture(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeAverageAperture(List<BeamControlPoints> bmCPsLs)
         // Compute MU weighted overall average number of apertures //
         {
             double apertRate = 0;
@@ -81,7 +87,7 @@ namespace complexityIMRT
             }
             return apertRate;
         }
-        public double ComputeApertureJawOpenRatio(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeApertureJawOpenRatio(List<BeamControlPoints> bmCPsLs)
         // Compute MU weighted open aperture area over open jaw area ratio //
         {
             double totApertJawR = 0;
@@ -99,7 +105,7 @@ namespace complexityIMRT
             }
             return totApertJawR;
         }
-        public double ComputePerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
+        public static double ComputePerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
         // Compute overall MU weighted open aperture perimeter over area ratio //
         {
             double totMUPrmtr = 0;
@@ -120,7 +126,7 @@ namespace complexityIMRT
             }
             return totMUPrmtr/totMUArea;
         }
-        public double ComputeAveragePerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeAveragePerimeterAreaRatio(List<BeamControlPoints> bmCPsLs)
         // Compute average aperture MU weighted perimeter over aperture area ratio, w/ respect to control point //
         {
             double totPrmtrAreaR = 0;
@@ -138,7 +144,7 @@ namespace complexityIMRT
             }
             return totPrmtrAreaR;
         }
-        public double ComputeOriginalEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeOriginalEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
         // Compute original EM ratio: overall MU & CP weighted open leaf edge length over aperture area ratio //
         {
             double totEdgeLenAreaR = 0;
@@ -159,7 +165,7 @@ namespace complexityIMRT
             }
             return totEdgeLenAreaR;
         }
-        public double ComputeEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
         // Compute overall aperture MU weighted open leaf edge length over aperture area ratio //
         {
             double totMUEdgeLen = 0;
@@ -181,7 +187,7 @@ namespace complexityIMRT
             }
             return totMUEdgeLen/totMUArea;
         }
-        public double ComputeEquivSqLength(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeEquivSqLength(List<BeamControlPoints> bmCPsLs)
         // Compute length of equivalent square with the same leaf edge length over area ratio //
         {
             double totMUEdgeLen = 0;
@@ -203,7 +209,7 @@ namespace complexityIMRT
             }
             return 2 * totMUArea/totMUEdgeLen;
         }
-        public double ComputeAverageEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeAverageEdgeLengthAreaRatio(List<BeamControlPoints> bmCPsLs)
         // Compute average aperture MU weighted open leaf edge length over aperture area ratio, w/ respect to control point //
         {
             double totEdgeLenAreaR = 0;
@@ -221,7 +227,7 @@ namespace complexityIMRT
             }
             return totEdgeLenAreaR;
         }
-        public Dictionary<int, double> ComputeApertureHistogram(List<BeamControlPoints> bmCPsLs, int binSz)
+        public static Dictionary<int, double> ComputeApertureHistogram(List<BeamControlPoints> bmCPsLs, int binSz)
         // Generate histogram of the aperture area, bin size = binSz mm^2 //
         {
             Dictionary <int, double> apertHist = new Dictionary<int, double>();
@@ -247,7 +253,7 @@ namespace complexityIMRT
             }
             return apertHist;
         }
-        public double ComputeAverageApertureArea(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeAverageApertureArea(List<BeamControlPoints> bmCPsLs)
         // Compute average aperture areaw, w/ respect to control point //
         {
             double avgArea = 0;
@@ -267,7 +273,7 @@ namespace complexityIMRT
             }
             return avgArea;
         }
-        public double ComputeApertureSkewness(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeApertureSkewness(List<BeamControlPoints> bmCPsLs)
         // Compute skewness of the aperture area //
         {
             double skewness = 0;
@@ -294,7 +300,7 @@ namespace complexityIMRT
             }
             return skewness;
         }
-        public double ComputeLeafGaps(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeLeafGaps(List<BeamControlPoints> bmCPsLs)
         // Compute MU weighted leaf gaps within opening jaw //
         {
             double totLeafGaps = 0;
@@ -308,7 +314,7 @@ namespace complexityIMRT
             }
             return totLeafGaps;
         }
-        public double ComputeAverageLeafSpeed(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeAverageLeafSpeed(List<BeamControlPoints> bmCPsLs)
         // Compute MU weighted overall average leaf speed //
         {
             double totLeafSpeed = 0;
@@ -323,7 +329,7 @@ namespace complexityIMRT
             }
             return totLeafSpeed / totMU;
         }
-        public double ComputeAverageGantryAcceleration(List<BeamControlPoints> bmCPsLs)
+        public static double ComputeAverageGantryAcceleration(List<BeamControlPoints> bmCPsLs)
         //Compute MU weighted overall average change in gantry speed //
         {
             double totGantryAccel = 0;
