@@ -1,6 +1,13 @@
 # Esapi_ComplexityIMRT
-Compute various complexity metrics for the treatment plan.
+**Overview**
+This project computes various complexity metrics for treatment plans.
 
-At the minimum, require customization in machine gantry speed in BeamControlPoints.cs and save folder location in Main.cs.
-ComplexityMetrics.cs contain different complexity metric computation.
-Main.cs calls the complexity metric, display its values in Eclipse as well as saving a csv file, one should customize the main function for clinical need. 
+**Customization Requirements**
+Machine Gantry Speed: Customize the machine gantry speed in BeamControlPoints.cs.
+Save Folder Location: Customize the save folder location in Main.cs.
+**File Descriptions**
+ComplexityMetrics.cs: Contains the computation methods for different complexity metrics.
+Main.cs:
+Calls the complexity metrics.
+Displays the computed values in Eclipse.
+Saves the results to a CSV file.
