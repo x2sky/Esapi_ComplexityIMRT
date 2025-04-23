@@ -12,12 +12,12 @@ Save Folder Location: Customize the save folder location in Main.cs.
 
 ComplexityMetrics.cs: 
 
-  Contains the computation methods for different complexity metrics.
+	Contains the computation methods for different complexity metrics.
 
 Main.cs:
 
-  Calls the complexity metrics.
-
-  Displays the computed values in Eclipse.
-
-  Saves the results to a CSV file.
+	Calls the complexity metrics.
+	
+	Displays the computed values in Eclipse.
+	
+	Saves the results to a CSV file.
